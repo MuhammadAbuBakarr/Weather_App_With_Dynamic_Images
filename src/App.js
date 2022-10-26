@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import PrintDate from "./PrintDate";
+import axios from "axios";
 
 const api = {
 	key: "9d668102e2949dab68d3a2267481a10c",
@@ -18,33 +19,30 @@ const App = () => {
 	//First Screen Function
 	const firstScreen = async () => {
 		// Catching IP and City of User
-		const ipApi =
-			"https://api.ipdata.co?api-key=3d4b38b0d35eefec653c4cb1a7dc39ea8e3f760e2f01b06e8ce7adf9";
+		// const ipApi =
+		// 	"https://api.ipdata.co?api-key=3d4b38b0d35eefec653c4cb1a7dc39ea8e3f760e2f01b06e8ce7adf9";
 
-		const userIP = await fetch("https://ipinfo.io?token=5675de78f2553f");
-		const userCity = await userIP.json();
-		const City = userCity.city;
-		console.log(userCity);
-		console.log(`City: ${City}`);
+		const userIP = await axios.get("https://ipinfo.io?token=5675de78f2553f");
+		console.log(userIP);
+
+		const city = userIP.data.city;
 
 		// Getting Weather From User City
-		const dummyCity = "New York";
-		const weathercall = await fetch(
-			`${api.base}weather?q=${City}&units=metric&APPID=${api.key}`
+		const weathercall = await axios.get(
+			`${api.base}weather?q=${city}&units=metric&APPID=${api.key}`
 		);
-		const result = await weathercall.json();
+		console.log(weathercall);
 
-		setWeather(result);
-		console.log(result);
+		setWeather(weathercall.data);
 		// Getting IMG from USer City
-		const img = await fetch(`${imgApi.base}${City}&client_id=${imgApi.key}`);
-		const data = await img.json();
+		const img = await axios.get(
+			`${imgApi.base}islamabad&client_id=${imgApi.key}`
+		);
+		console.log(img);
 
-		console.log(data);
-		let randomNo = Math.floor(Math.random() * 20);
-		let apiImg = data.results[randomNo].urls.regular;
+		let randomNo = Math.floor(Math.random() * 1);
+		let apiImg = img.data.results[randomNo].urls.regular;
 		setImg(apiImg);
-		console.log(apiImg);
 	};
 
 	// UseEffect
@@ -53,21 +51,20 @@ const App = () => {
 	}, []);
 
 	const search = async () => {
-		const results = await fetch(
+		const results = await axios.get(
 			`${api.base}weather?q=${query}&units=metric&APPID=${api.key}`
 		);
-		const result = await results.json();
 		setQuery("");
-		setWeather(result);
-		console.log(result);
+		setWeather(results.data);
+		console.log(results);
 	};
 
 	const getImg = async () => {
-		const dataa = await fetch(`${imgApi.base}${query}&client_id=${imgApi.key}`);
-		const data = await dataa.json();
-		console.log(data);
-		let randomNo = Math.floor(Math.random() * 2);
-		let apiImg = data.results[randomNo].urls.regular;
+		const dataa = await axios.get(
+			`${imgApi.base}${query}&client_id=${imgApi.key}`
+		);
+		let randomNo = Math.floor(Math.random() * 1);
+		let apiImg = dataa.results[randomNo].urls.regular;
 		setImg(apiImg);
 		console.log(apiImg);
 	};
@@ -84,7 +81,7 @@ const App = () => {
 	};
 
 	const ConditionalRendering = () => {
-		if (weather.main != undefined) {
+		if (weather.main !== undefined) {
 			return (
 				<div className="text-black shadow-xl text-2xl flex items-center justify-center p-11 space-y-3 font-thin flex-col text-center tracking-wide">
 					<div>{PrintDate(new Date())}</div>
